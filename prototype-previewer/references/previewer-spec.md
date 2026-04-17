@@ -6,16 +6,17 @@
 - The preferred shell is three columns on desktop:
   - left: flow navigation
   - center: device or browser preview
-  - right: PRD notes tied to the active screen
+  - right: review notes tied to the active screen
 - Every independent page or state counts as its own screen.
   Detail pages, loading states, empty states, paywalls, scan tips, and branch screens should each have their own `data-screen`.
-- Visible product UI text is usually English.
-- PRD logic notes are usually Chinese.
+- Visible product UI text and review notes default to English.
+- If another language is needed, the prompt should request it explicitly.
 - Interactions are local and deterministic. Avoid backend dependencies.
-- The PRD panel should expose two editable sections for the active screen:
+- The notes panel should expose two editable sections for the active screen:
   - `UI`
   - `Page`
-- The PRD Save action should persist to `localStorage`.
+- The Save action should persist to `localStorage`.
+- Resizable vertical dividers between columns are acceptable and can be part of the default shell.
 
 ## Interaction patterns to preserve
 
@@ -52,6 +53,7 @@
 - `data-screen-label`
 - `data-nav-target`
 - `data-go`
+- `data-resizer`
 - `#prd-content`
 - `#prd-save-button`
 

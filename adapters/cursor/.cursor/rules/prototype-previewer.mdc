@@ -1,0 +1,16 @@
+---
+description: Build interactive prototype reviewers with synced review notes and Figma capture pages.
+globs:
+alwaysApply: false
+---
+
+When the user asks for a prototype previewer, clickable web prototype, multi-screen flow review page, or Figma-ready review shell:
+
+- read `prototype-previewer/SKILL.md`
+- read `prototype-previewer/references/previewer-spec.md`
+- read `prototype-previewer/references/adaptation-checklist.md`
+- prefer outputting `index.html` and `figma_capture_index.html`
+- use `prototype-previewer/assets/index.template.html` and `prototype-previewer/assets/figma_capture_index.template.html` as the default starter pair when no shell exists
+- use English for both interface copy and review notes by default
+- only switch languages when the prompt explicitly asks for a different language
+- treat each independent page or state as its own `data-screen`

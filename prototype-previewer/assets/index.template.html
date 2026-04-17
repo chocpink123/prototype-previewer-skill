@@ -22,6 +22,9 @@
         --radius-xl: 30px;
         --radius-lg: 24px;
         --radius-md: 18px;
+        --nav-width: 260px;
+        --notes-width: 380px;
+        --resizer-width: 12px;
       }
 
       * {
@@ -55,9 +58,14 @@
       .prototype-shell {
         width: min(1540px, 100%);
         display: grid;
-        grid-template-columns: 260px 430px 1fr;
-        gap: 28px;
-        align-items: start;
+        grid-template-columns:
+          minmax(220px, var(--nav-width))
+          var(--resizer-width)
+          minmax(360px, 1fr)
+          var(--resizer-width)
+          minmax(320px, var(--notes-width));
+        gap: 0;
+        align-items: stretch;
       }
 
       .panel {
@@ -71,6 +79,12 @@
       .control-panel,
       .prd-panel {
         padding: 22px;
+      }
+
+      .control-panel,
+      .device-stage,
+      .prd-panel {
+        min-width: 0;
       }
 
       .eyebrow {
@@ -149,6 +163,29 @@
       .device-stage {
         display: grid;
         place-items: center;
+        padding: 0 28px;
+      }
+
+      .panel-resizer {
+        position: relative;
+        width: var(--resizer-width);
+        cursor: col-resize;
+        touch-action: none;
+      }
+
+      .panel-resizer::before {
+        content: "";
+        position: absolute;
+        inset: 18px 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        transition: background 160ms ease, box-shadow 160ms ease;
+      }
+
+      .panel-resizer:hover::before,
+      .prototype-shell[data-resizing="true"] .panel-resizer.active::before {
+        background: rgba(115, 226, 255, 0.3);
+        box-shadow: 0 0 0 1px rgba(115, 226, 255, 0.16);
       }
 
       .preview-device {
@@ -670,17 +707,26 @@
         .prototype-shell {
           grid-template-columns: 1fr;
           justify-items: center;
+          gap: 18px;
         }
 
         .control-panel,
         .prd-panel {
           width: min(390px, 100%);
         }
+
+        .device-stage {
+          padding: 0;
+        }
+
+        .panel-resizer {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="prototype-shell">
+    <div class="prototype-shell" id="prototype-shell">
       <aside class="panel control-panel">
         <p class="eyebrow">Interactive Prototype</p>
         <h1>__APP_NAME__</h1>
@@ -696,11 +742,20 @@
           <br />
           `UI labels` stay in English
           <br />
-          `PRD notes` stay in Chinese
+          `Review notes` stay in English by default
           <br />
-          `Every independent state` gets its own screen
+          `Specify another language in the prompt if needed`
         </div>
       </aside>
+
+      <div
+        class="panel-resizer"
+        data-resizer="nav"
+        role="separator"
+        aria-label="Resize navigation panel"
+        aria-orientation="vertical"
+        tabindex="0"
+      ></div>
 
       <main class="device-stage">
         <div class="preview-device">
@@ -855,7 +910,7 @@
               <div class="library-list active" id="library-list">
                 <button class="library-item" type="button" data-go="detail">
                   <div>
-                    <span class="mini-label">Record</span>
+                    <span class="mini-label">Item</span>
                     <h5>Primary saved item</h5>
                     <p>Short subtitle explaining why this entry matters.</p>
                   </div>
@@ -863,7 +918,7 @@
                 </button>
                 <button class="library-item" type="button" data-go="detail">
                   <div>
-                    <span class="mini-label">Record</span>
+                    <span class="mini-label">Item</span>
                     <h5>Secondary saved item</h5>
                     <p>Use this space for tags, quality cues, or ownership state.</p>
                   </div>
@@ -883,7 +938,7 @@
             <div class="detail-card">
               <span class="mini-label">Detail</span>
               <h4>Drill-down state</h4>
-              <p>Use this screen for article detail, record detail, or any branch page that needs richer explanation.</p>
+              <p>Use this screen for item detail, content detail, or any branch page that needs richer explanation.</p>
 
               <div class="detail-grid">
                 <div>
@@ -905,8 +960,8 @@
               </div>
 
               <div class="detail-body">
-                <p>Replace this with the product-specific narrative that explains why the user should care about this object, article, card, or record.</p>
-                <p>Long-form explanation belongs here because the right-side PRD panel is for product logic, not for end-user reading copy.</p>
+                <p>Replace this with the product-specific narrative that explains why the user should care about this workflow, object, or piece of content.</p>
+                <p>Long-form explanation belongs here because the right-side notes panel is for product reasoning, not for end-user reading copy.</p>
               </div>
             </div>
           </section>
@@ -923,15 +978,24 @@
         </div>
       </main>
 
+      <div
+        class="panel-resizer"
+        data-resizer="notes"
+        role="separator"
+        aria-label="Resize notes panel"
+        aria-orientation="vertical"
+        tabindex="0"
+      ></div>
+
       <aside class="panel prd-panel">
         <div class="prd-header">
-          <p class="eyebrow">Logic Notes</p>
-          <h2>PRD</h2>
-          <p>切换页面后，右侧应自动切换到当前页面说明。功能名称和界面标签保留英文，逻辑说明写中文。</p>
+          <p class="eyebrow">Review Notes</p>
+          <h2>Notes</h2>
+          <p>When the active screen changes, this panel should follow it. By default, both interface copy and notes stay in English unless another language is requested.</p>
         </div>
 
         <div class="prd-toolbar">
-          <div class="save-note" id="save-note">可直接编辑当前页面说明，点击 Save 生效。</div>
+          <div class="save-note" id="save-note">Edit the notes for the active screen, then click Save.</div>
           <button class="save-button" type="button" id="prd-save-button">Save</button>
         </div>
 
@@ -952,32 +1016,32 @@
 
       const defaultPrdDocs = {
         home: {
-          ui: "<p><code>Home</code> 要先交代核心价值，再给主 CTA。主视觉、主按钮、次级内容要有清晰层级。</p>",
-          page: "<p>这是默认入口页。目标是让用户快速理解产品能力，并立刻进入最关键的主流程。</p>"
+          ui: "<p><code>Home</code> should explain the core value first, then present the main CTA. Keep the hero, primary action, and secondary content clearly prioritized.</p>",
+          page: "<p>This is the default entry screen. The goal is to help users understand the product quickly and move into the main flow with minimal friction.</p>"
         },
         plan: {
-          ui: "<p><code>Plan</code> 页面要强调主推荐方案，但信息量不能压过决策本身。</p>",
-          page: "<p>这是升级或计划页。职责是承接免费用户转化，或者解释高级能力的价值。</p>"
+          ui: "<p><code>Plan</code> should emphasize the recommended option without overwhelming the decision. Benefits and pricing need a calm, readable hierarchy.</p>",
+          page: "<p>This is the upgrade or plan screen. Its role is to support conversion or explain the value of premium capabilities.</p>"
         },
         capture: {
-          ui: "<p><code>Capture</code> 需要尽量接近原生输入体验，按钮少而明确，边缘控制为辅。</p>",
-          page: "<p>这是用户提交输入的入口态。重点是快速开始，而不是解释过多规则。</p>"
+          ui: "<p><code>Capture</code> should feel close to a native input experience. Keep the controls minimal, obvious, and edge-aligned.</p>",
+          page: "<p>This is the input entry state. The emphasis is on starting quickly rather than explaining too many rules up front.</p>"
         },
         loading: {
-          ui: "<p><code>Loading</code> 需要有处理中氛围，但不能制造焦虑。百分比、阶段文案、节奏要可信。</p>",
-          page: "<p>这是中间态页面，用于连接用户动作和系统结果，让整个流程更像真实产品。</p>"
+          ui: "<p><code>Loading</code> should feel active without creating anxiety. The timing, percentage, and stage copy should all feel believable.</p>",
+          page: "<p>This is the transition state between user action and system output. It should make the flow feel intentional and product-like.</p>"
         },
         result: {
-          ui: "<p><code>Result</code> 需要把最关键结论放在最前面，后面再接趋势、解释或细节模块。</p>",
-          page: "<p>这是核心结果页。用户最关心的信息必须在首屏被看懂，次级信息再辅助判断。</p>"
+          ui: "<p><code>Result</code> should lead with the most important conclusion, then follow with supporting trends, explanation, or detail modules.</p>",
+          page: "<p>This is the primary output screen. The most important information must be understood at a glance, with secondary details supporting decisions.</p>"
         },
         library: {
-          ui: "<p><code>Library</code> 适合展示 filled / empty 两种状态，并让信息密度稳定可扫读。</p>",
-          page: "<p>这是资产、记录或已保存内容的集合页。它需要同时证明“有内容时高效”和“没内容时不空洞”。</p>"
+          ui: "<p><code>Library</code> should support both filled and empty states while keeping the information density stable and easy to scan.</p>",
+          page: "<p>This is the collection of saved items or tracked content. It should feel efficient when populated and still feel purposeful when empty.</p>"
         },
         detail: {
-          ui: "<p><code>Detail</code> 页面用于承接 drill-down，适合更长文案和更细的信息分组。</p>",
-          page: "<p>这是详情页。它负责解释对象为什么重要，而不是只重复列表页已经展示过的标题。</p>"
+          ui: "<p><code>Detail</code> is the drill-down screen. It should support longer copy and more finely grouped information.</p>",
+          page: "<p>This is the detail page. It should explain why the item matters instead of simply repeating the list title.</p>"
         }
       };
 
@@ -1008,16 +1072,65 @@
       const saveNote = document.getElementById("save-note");
       const tabbar = document.getElementById("tabbar");
       const homeIndicator = document.getElementById("home-indicator");
+      const prototypeShell = document.getElementById("prototype-shell");
       const libraryList = document.getElementById("library-list");
       const libraryEmpty = document.getElementById("library-empty");
       const loadingPercent = document.getElementById("loading-percent");
       const loadingMessage = document.getElementById("loading-message");
       const loadingBar = document.getElementById("loading-bar");
+      const resizers = [...document.querySelectorAll("[data-resizer]")];
 
       const hiddenChromeScreens = new Set(["plan", "capture", "loading", "result"]);
+      const layoutStorageKey = "prototype_previewer_layout_v1";
       let currentScreen = "home";
       let libraryMode = "filled";
       let loadingTimeouts = [];
+      let activeResize;
+      const layoutState = (() => {
+        try {
+          const raw = window.localStorage.getItem(layoutStorageKey);
+          const parsed = raw ? JSON.parse(raw) : {};
+          return {
+            navWidth: typeof parsed.navWidth === "number" ? parsed.navWidth : 260,
+            notesWidth: typeof parsed.notesWidth === "number" ? parsed.notesWidth : 380
+          };
+        } catch (error) {
+          return { navWidth: 260, notesWidth: 380 };
+        }
+      })();
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function applyLayoutState() {
+        prototypeShell.style.setProperty("--nav-width", `${layoutState.navWidth}px`);
+        prototypeShell.style.setProperty("--notes-width", `${layoutState.notesWidth}px`);
+      }
+
+      function persistLayoutState() {
+        window.localStorage.setItem(layoutStorageKey, JSON.stringify(layoutState));
+      }
+
+      function finishResize() {
+        if (!activeResize) return;
+        prototypeShell.dataset.resizing = "false";
+        document.body.style.removeProperty("cursor");
+        document.body.style.removeProperty("user-select");
+        resizers.forEach((resizer) => resizer.classList.remove("active"));
+        persistLayoutState();
+        activeResize = undefined;
+      }
+
+      function updateResize(clientX) {
+        if (!activeResize || window.innerWidth <= 960) return;
+        if (activeResize.type === "nav") {
+          layoutState.navWidth = clamp(activeResize.startWidth + (clientX - activeResize.startX), 220, 420);
+        } else {
+          layoutState.notesWidth = clamp(activeResize.startWidth - (clientX - activeResize.startX), 320, 560);
+        }
+        applyLayoutState();
+      }
 
       function stopLoadingSequence() {
         loadingTimeouts.forEach((id) => window.clearTimeout(id));
@@ -1119,7 +1232,7 @@
         renderScreens();
         renderPrd();
         renderLibrary();
-        saveNote.textContent = "可直接编辑当前页面说明，点击 Save 生效。";
+        saveNote.textContent = "Edit the notes for the active screen, then click Save.";
         if (screenId === "loading") startLoadingSequence();
       }
 
@@ -1160,6 +1273,56 @@
         saveNote.textContent = "Saved to localStorage.";
       });
 
+      resizers.forEach((resizer) => {
+        resizer.addEventListener("pointerdown", (event) => {
+          if (window.innerWidth <= 960) return;
+          activeResize = {
+            type: resizer.dataset.resizer,
+            startX: event.clientX,
+            startWidth: resizer.dataset.resizer === "nav" ? layoutState.navWidth : layoutState.notesWidth
+          };
+          prototypeShell.dataset.resizing = "true";
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+          resizer.classList.add("active");
+          resizer.setPointerCapture(event.pointerId);
+        });
+
+        resizer.addEventListener("pointermove", (event) => {
+          updateResize(event.clientX);
+        });
+
+        resizer.addEventListener("pointerup", finishResize);
+        resizer.addEventListener("pointercancel", finishResize);
+
+        resizer.addEventListener("keydown", (event) => {
+          const step = event.shiftKey ? 24 : 12;
+          let handled = true;
+          if (resizer.dataset.resizer === "nav" && event.key === "ArrowLeft") {
+            layoutState.navWidth = clamp(layoutState.navWidth - step, 220, 420);
+          } else if (resizer.dataset.resizer === "nav" && event.key === "ArrowRight") {
+            layoutState.navWidth = clamp(layoutState.navWidth + step, 220, 420);
+          } else if (resizer.dataset.resizer === "notes" && event.key === "ArrowLeft") {
+            layoutState.notesWidth = clamp(layoutState.notesWidth + step, 320, 560);
+          } else if (resizer.dataset.resizer === "notes" && event.key === "ArrowRight") {
+            layoutState.notesWidth = clamp(layoutState.notesWidth - step, 320, 560);
+          } else {
+            handled = false;
+          }
+
+          if (!handled) return;
+          event.preventDefault();
+          applyLayoutState();
+          persistLayoutState();
+        });
+      });
+
+      window.addEventListener("pointerup", finishResize);
+      window.addEventListener("resize", () => {
+        if (window.innerWidth <= 960) finishResize();
+      });
+
+      applyLayoutState();
       renderFlowList();
       renderScreens();
       renderLibrary();

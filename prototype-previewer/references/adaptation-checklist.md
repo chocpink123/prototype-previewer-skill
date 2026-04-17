@@ -12,9 +12,14 @@
 - Pick a stable `data-screen` id.
 - Add a human-readable `data-screen-label`.
 - Define one short flow summary for the left nav.
-- Write two PRD note blocks:
+- Write two review note blocks:
   - `UI`: layout, hierarchy, component emphasis
   - `Page`: purpose, logic, transition behavior
+
+## Language default
+
+- Use English for both UI text and review notes unless the user explicitly asks for another language.
+- If another language is required, state it clearly in the prompt rather than changing the base template defaults.
 
 ## Behavior checklist
 
@@ -23,6 +28,7 @@
 - If there is a loading state, make it legible and deterministic.
 - If there is a list, include one detail drill-down.
 - If there is a collection or dashboard concept, consider showing both filled and empty states.
+- If the reviewer has multiple columns, consider adding resizable vertical dividers for easier side-by-side review.
 
 ## Capture checklist
 

@@ -1,0 +1,8 @@
+interface:
+  display_name: "Prototype Previewer"
+  short_description: "Builds a polished interactive prototype reviewer"
+  brand_color: "#38BDF8"
+  default_prompt: "Use $prototype-previewer to create an interactive `index.html` prototype reviewer and a matching `figma_capture_index.html` for this project."
+
+policy:
+  allow_implicit_invocation: true

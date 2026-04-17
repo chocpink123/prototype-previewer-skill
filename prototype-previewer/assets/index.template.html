@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>__APP_NAME__ Prototype Preview</title>
+    <style>
+      :root {
+        --bg: #051018;
+        --bg-soft: #0b1721;
+        --panel: rgba(10, 18, 27, 0.78);
+        --panel-soft: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.09);
+        --text: #f5f7fb;
+        --muted: #97a7ba;
+        --cyan: #73e2ff;
+        --blue: #71a7ff;
+        --amber: #ffc865;
+        --green: #78efba;
+        --red: #ff7b74;
+        --shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+        --radius-xl: 30px;
+        --radius-lg: 24px;
+        --radius-md: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background:
+          radial-gradient(circle at 12% 10%, rgba(115, 226, 255, 0.16) 0%, transparent 26%),
+          radial-gradient(circle at 86% 6%, rgba(255, 200, 101, 0.13) 0%, transparent 22%),
+          linear-gradient(180deg, #03070b 0%, #08131c 100%);
+        color: var(--text);
+        font-family: "SF Pro Display", "SF Pro Text", "Segoe UI", Arial, sans-serif;
+      }
+
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      button {
+        font: inherit;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .prototype-shell {
+        width: min(1540px, 100%);
+        display: grid;
+        grid-template-columns: 260px 430px 1fr;
+        gap: 28px;
+        align-items: start;
+      }
+
+      .panel {
+        border-radius: 28px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .control-panel,
+      .prd-panel {
+        padding: 22px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--cyan);
+      }
+
+      .control-panel h1,
+      .prd-panel h2 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+      }
+
+      .control-copy,
+      .prd-header p {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .flow-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .flow-button {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 18px;
+        text-align: left;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid transparent;
+        transition: transform 180ms ease, background 180ms ease;
+      }
+
+      .flow-button strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+        font-size: 14px;
+      }
+
+      .flow-button span {
+        display: block;
+        font-size: 12px;
+      }
+
+      .flow-button.active {
+        background: linear-gradient(135deg, rgba(115, 226, 255, 0.16), rgba(113, 167, 255, 0.14));
+        border-color: rgba(115, 226, 255, 0.24);
+      }
+
+      .flow-button:hover {
+        transform: translateY(-1px);
+      }
+
+      .hint-block {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .device-stage {
+        display: grid;
+        place-items: center;
+      }
+
+      .preview-device {
+        position: relative;
+        width: 390px;
+        min-height: 844px;
+        overflow: hidden;
+        border-radius: 42px;
+        background:
+          radial-gradient(circle at 20% 8%, rgba(115, 226, 255, 0.12) 0%, transparent 24%),
+          radial-gradient(circle at 84% 10%, rgba(255, 200, 101, 0.12) 0%, transparent 20%),
+          linear-gradient(180deg, #08131b 0%, #060b12 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.05),
+          0 32px 96px rgba(0, 0, 0, 0.48);
+      }
+
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 22px 6px;
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      .status-icons {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .status-pill {
+        width: 18px;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      .screen {
+        display: none;
+        min-height: 770px;
+        padding: 14px 16px 132px;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      .top-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+      }
+
+      .top-copy h3 {
+        margin: 0;
+        font-size: 32px;
+        line-height: 0.96;
+        letter-spacing: -0.05em;
+      }
+
+      .top-copy p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .ghost-button,
+      .icon-button {
+        width: 48px;
+        height: 48px;
+        border-radius: 18px;
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .hero-card,
+      .content-card,
+      .detail-card,
+      .collection-card,
+      .loading-card {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 28px;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+          linear-gradient(180deg, #0c1822 0%, #091119 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        overflow: hidden;
+      }
+
+      .hero-badge,
+      .mini-label,
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: rgba(115, 226, 255, 0.14);
+        color: var(--cyan);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero-visual {
+        position: relative;
+        min-height: 210px;
+        margin-top: 14px;
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at 22% 20%, rgba(115, 226, 255, 0.28) 0%, transparent 32%),
+          radial-gradient(circle at 78% 24%, rgba(255, 123, 116, 0.22) 0%, transparent 28%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+      }
+
+      .hero-visual::before,
+      .hero-visual::after {
+        content: "";
+        position: absolute;
+        border-radius: 28px;
+        inset: 24px 52px;
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+        transform: rotate(-7deg);
+      }
+
+      .hero-visual::after {
+        inset: 36px 82px;
+        transform: rotate(8deg);
+      }
+
+      .hero-copy h4,
+      .content-card h4,
+      .detail-card h4,
+      .collection-card h4,
+      .loading-card h4 {
+        margin: 14px 0 0;
+        font-size: 28px;
+        letter-spacing: -0.05em;
+      }
+
+      .hero-copy p,
+      .content-card p,
+      .detail-card p,
+      .collection-card p,
+      .loading-card p {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .cta-row,
+      .mini-grid,
+      .detail-grid,
+      .library-mode-row,
+      .tabbar-items {
+        display: grid;
+        gap: 10px;
+      }
+
+      .cta-row {
+        grid-template-columns: 1fr 1fr;
+        margin-top: 18px;
+      }
+
+      .primary-button,
+      .secondary-button,
+      .save-button {
+        min-height: 50px;
+        padding: 0 16px;
+        border-radius: 16px;
+        font-weight: 800;
+      }
+
+      .primary-button,
+      .save-button {
+        color: #0b1116;
+        background: linear-gradient(135deg, var(--amber), #ff9f1f);
+      }
+
+      .secondary-button {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .mini-grid {
+        grid-template-columns: 1fr 1fr;
+        margin-top: 16px;
+      }
+
+      .stat-card,
+      .detail-grid div,
+      .library-item,
+      .mode-toggle,
+      .trend-line,
+      .loading-step {
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .stat-card,
+      .detail-grid div {
+        padding: 14px;
+      }
+
+      .stat-card strong,
+      .detail-grid strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 20px;
+      }
+
+      .plan-shell {
+        min-height: 720px;
+        display: grid;
+        align-content: end;
+      }
+
+      .plan-card {
+        padding: 22px;
+        border-radius: 28px;
+        background:
+          linear-gradient(135deg, rgba(255, 200, 101, 0.18), rgba(255, 159, 31, 0.14)),
+          rgba(18, 14, 8, 0.74);
+        border: 1px solid rgba(255, 200, 101, 0.22);
+        box-shadow: var(--shadow);
+      }
+
+      .benefit-list,
+      .detail-body,
+      .library-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .benefit-row,
+      .library-item {
+        display: flex;
+        gap: 12px;
+        align-items: start;
+        padding: 14px;
+      }
+
+      .benefit-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(255, 255, 255, 0.13);
+      }
+
+      .camera-shell {
+        position: relative;
+        min-height: 700px;
+        margin-top: 14px;
+        border-radius: 28px;
+        overflow: hidden;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+          radial-gradient(circle at center, rgba(115, 226, 255, 0.12) 0%, transparent 36%);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .camera-shell::before {
+        content: "";
+        position: absolute;
+        inset: 80px 56px;
+        border-radius: 26px;
+        border: 2px solid rgba(255, 255, 255, 0.24);
+      }
+
+      .camera-controls {
+        position: absolute;
+        inset: auto 0 24px;
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+      }
+
+      .camera-control {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .loading-ring {
+        width: 138px;
+        height: 138px;
+        margin: 0 auto;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle, rgba(255, 255, 255, 0.06) 48%, transparent 49%),
+          conic-gradient(var(--cyan) 0deg 216deg, rgba(255, 255, 255, 0.08) 216deg 360deg);
+      }
+
+      .loading-ring strong {
+        font-size: 34px;
+      }
+
+      .loading-bar {
+        height: 10px;
+        margin-top: 16px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        overflow: hidden;
+      }
+
+      .loading-bar span {
+        display: block;
+        width: 60%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--cyan), var(--blue));
+      }
+
+      .loading-step {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .loading-step.active {
+        color: var(--text);
+        border-color: rgba(115, 226, 255, 0.18);
+      }
+
+      .result-price {
+        margin-top: 14px;
+        font-size: 42px;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+      }
+
+      .trend-line {
+        margin-top: 16px;
+        padding: 18px;
+        min-height: 120px;
+        background:
+          linear-gradient(180deg, rgba(53, 177, 242, 0.14), rgba(53, 177, 242, 0.02));
+      }
+
+      .trend-line svg {
+        width: 100%;
+        height: 88px;
+      }
+
+      .mode-toggle {
+        display: inline-grid;
+        grid-auto-flow: column;
+        gap: 6px;
+        padding: 6px;
+      }
+
+      .mode-toggle button {
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 12px;
+        color: var(--muted);
+        background: transparent;
+      }
+
+      .mode-toggle button.active {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .library-item {
+        justify-content: space-between;
+      }
+
+      .library-item h5,
+      .detail-card h5 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.03em;
+      }
+
+      .library-item p,
+      .detail-body p {
+        margin: 8px 0 0;
+      }
+
+      .library-empty {
+        display: none;
+        margin-top: 16px;
+        padding: 18px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.09);
+        text-align: center;
+      }
+
+      .library-empty.active,
+      .library-list.active {
+        display: grid;
+      }
+
+      .library-list {
+        display: none;
+      }
+
+      .tabbar {
+        position: absolute;
+        inset: auto 18px 18px;
+        padding: 10px;
+        border-radius: 24px;
+        background: rgba(7, 11, 16, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .tabbar-items {
+        grid-auto-flow: column;
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .tab-item {
+        min-height: 56px;
+        border-radius: 16px;
+        color: var(--muted);
+        background: transparent;
+      }
+
+      .tab-item.active {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .home-indicator {
+        position: absolute;
+        inset: auto 132px 6px;
+        height: 5px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.38);
+      }
+
+      .prd-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .save-note {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .prd-content {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .prd-content h3 {
+        margin: 12px 0 0;
+        font-size: 26px;
+        letter-spacing: -0.05em;
+      }
+
+      .prd-section {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .prd-section-head {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        background: none;
+        color: var(--text);
+        padding: 0;
+      }
+
+      .prd-section-body {
+        margin-top: 12px;
+        padding: 14px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        color: #d7e2ef;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .prd-section-body:focus {
+        outline: 1px solid rgba(115, 226, 255, 0.28);
+      }
+
+      .prd-section.collapsed .prd-section-body {
+        display: none;
+      }
+
+      @media (max-width: 960px) {
+        body {
+          padding: 12px;
+        }
+
+        .prototype-shell {
+          grid-template-columns: 1fr;
+          justify-items: center;
+        }
+
+        .control-panel,
+        .prd-panel {
+          width: min(390px, 100%);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="prototype-shell">
+      <aside class="panel control-panel">
+        <p class="eyebrow">Interactive Prototype</p>
+        <h1>__APP_NAME__</h1>
+        <p class="control-copy">
+          Review shell for a multi-screen product flow. Replace the screen list, copy, and notes to match
+          the new project while keeping the same interaction contract.
+        </p>
+
+        <div class="flow-list" id="flow-list"></div>
+
+        <div class="hint-block">
+          Reviewer rules:
+          <br />
+          `UI labels` stay in English
+          <br />
+          `PRD notes` stay in Chinese
+          <br />
+          `Every independent state` gets its own screen
+        </div>
+      </aside>
+
+      <main class="device-stage">
+        <div class="preview-device">
+          <div class="status-bar">
+            <span>9:41</span>
+            <div class="status-icons">
+              <span class="status-pill"></span>
+              <span class="status-pill"></span>
+              <span class="status-pill"></span>
+            </div>
+          </div>
+
+          <section class="screen active" data-screen="home" data-screen-label="Home">
+            <div class="top-row">
+              <div class="top-copy">
+                <h3>__APP_NAME__</h3>
+                <p>Lead with the most important promise, then give users one clear next action.</p>
+              </div>
+              <button class="ghost-button" type="button" aria-label="Settings">+</button>
+            </div>
+
+            <div class="hero-card">
+              <span class="hero-badge">Primary Flow</span>
+              <div class="hero-copy">
+                <h4>Show the product value before the user has to think.</h4>
+                <p>Use this top block for the strongest visual, quickest explanation, and the main CTA.</p>
+              </div>
+              <div class="hero-visual"></div>
+              <div class="cta-row">
+                <button class="primary-button" type="button" data-go="capture">Start</button>
+                <button class="secondary-button" type="button" data-go="plan">Upgrade</button>
+              </div>
+            </div>
+
+            <div class="content-card">
+              <span class="tag">Highlights</span>
+              <div class="mini-grid">
+                <div class="stat-card">
+                  <span>Speed</span>
+                  <strong>Fast</strong>
+                </div>
+                <div class="stat-card">
+                  <span>Confidence</span>
+                  <strong>Clear</strong>
+                </div>
+              </div>
+              <div class="cta-row">
+                <button class="secondary-button" type="button" data-go="detail">Open Detail</button>
+                <button class="secondary-button" type="button" data-go="library">Open Library</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="plan" data-screen-label="Plan" data-hide-chrome="true">
+            <div class="plan-shell">
+              <div class="plan-card">
+                <span class="mini-label">Upgrade</span>
+                <h4>Unlock the full workflow</h4>
+                <p>Use this screen for pricing, benefits, and the strongest upgrade argument.</p>
+
+                <div class="benefit-list">
+                  <div class="benefit-row">
+                    <div class="benefit-icon">A</div>
+                    <div>
+                      <strong>More actions</strong>
+                      <p>Describe the biggest gain in one short sentence.</p>
+                    </div>
+                  </div>
+                  <div class="benefit-row">
+                    <div class="benefit-icon">B</div>
+                    <div>
+                      <strong>Better signal</strong>
+                      <p>Keep the hierarchy calm and easy to scan.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cta-row">
+                  <button class="secondary-button" type="button" data-go="home">Back</button>
+                  <button class="primary-button" type="button" data-go="home">Continue</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="capture" data-screen-label="Capture" data-hide-chrome="true">
+            <div class="top-row">
+              <button class="icon-button" type="button" data-go="home" aria-label="Close">x</button>
+              <button class="icon-button" type="button" data-go="detail" aria-label="Tips">?</button>
+            </div>
+
+            <div class="camera-shell">
+              <div class="camera-controls">
+                <button class="camera-control" type="button" data-go="loading" aria-label="Library"></button>
+                <button class="camera-control" type="button" data-go="loading" aria-label="Capture"></button>
+                <button class="camera-control" type="button" aria-label="Switch"></button>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="loading" data-screen-label="Loading" data-hide-chrome="true">
+            <div class="loading-card">
+              <div class="loading-ring"><strong id="loading-percent">60%</strong></div>
+              <h4>Processing</h4>
+              <p id="loading-message">Turn this into the best believable processing line for the product.</p>
+              <div class="loading-bar"><span id="loading-bar"></span></div>
+
+              <div class="benefit-list">
+                <div class="loading-step active">Reading the primary input...</div>
+                <div class="loading-step active">Matching the best candidate...</div>
+                <div class="loading-step">Preparing the response screen...</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="result" data-screen-label="Result" data-hide-chrome="true">
+            <div class="detail-card">
+              <span class="mini-label">Result</span>
+              <h4>Main response state</h4>
+              <div class="result-price">$680</div>
+              <p>Use this block for the highest-priority answer, then follow with trend, score, or explanation.</p>
+              <div class="trend-line">
+                <svg viewBox="0 0 300 90" aria-hidden="true">
+                  <path d="M6 72 L44 60 L82 64 L120 48 L158 42 L196 54 L234 30 L272 20 L294 16" fill="none" stroke="#35b1f2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </div>
+              <div class="cta-row">
+                <button class="secondary-button" type="button" data-go="capture">Back</button>
+                <button class="primary-button" type="button" data-go="library">Save</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="library" data-screen-label="Library">
+            <div class="top-row">
+              <div class="top-copy">
+                <h3>Saved items</h3>
+                <p>Use toggles to show filled and empty states without leaving the reviewer.</p>
+              </div>
+              <button class="ghost-button" type="button" data-go="home" aria-label="Back">^</button>
+            </div>
+
+            <div class="collection-card">
+              <div class="library-mode-row">
+                <span class="tag">Prototype State</span>
+                <div class="mode-toggle">
+                  <button class="active" type="button" data-library-mode="filled">Filled</button>
+                  <button type="button" data-library-mode="empty">Empty</button>
+                </div>
+              </div>
+
+              <div class="library-list active" id="library-list">
+                <button class="library-item" type="button" data-go="detail">
+                  <div>
+                    <span class="mini-label">Record</span>
+                    <h5>Primary saved item</h5>
+                    <p>Short subtitle explaining why this entry matters.</p>
+                  </div>
+                  <strong>$842</strong>
+                </button>
+                <button class="library-item" type="button" data-go="detail">
+                  <div>
+                    <span class="mini-label">Record</span>
+                    <h5>Secondary saved item</h5>
+                    <p>Use this space for tags, quality cues, or ownership state.</p>
+                  </div>
+                  <strong>$410</strong>
+                </button>
+              </div>
+
+              <div class="library-empty" id="library-empty">
+                <h5 style="margin: 0; font-size: 22px;">Nothing saved yet</h5>
+                <p>Keep this state calm. It should encourage the user back to the main CTA instead of feeling broken.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="detail" data-screen-label="Detail">
+            <button class="secondary-button" type="button" data-go="home">Back</button>
+            <div class="detail-card">
+              <span class="mini-label">Detail</span>
+              <h4>Drill-down state</h4>
+              <p>Use this screen for article detail, record detail, or any branch page that needs richer explanation.</p>
+
+              <div class="detail-grid">
+                <div>
+                  <span>Signal</span>
+                  <strong>Clear</strong>
+                </div>
+                <div>
+                  <span>Priority</span>
+                  <strong>High</strong>
+                </div>
+                <div>
+                  <span>Context</span>
+                  <strong>Relevant</strong>
+                </div>
+                <div>
+                  <span>Status</span>
+                  <strong>Active</strong>
+                </div>
+              </div>
+
+              <div class="detail-body">
+                <p>Replace this with the product-specific narrative that explains why the user should care about this object, article, card, or record.</p>
+                <p>Long-form explanation belongs here because the right-side PRD panel is for product logic, not for end-user reading copy.</p>
+              </div>
+            </div>
+          </section>
+
+          <nav class="tabbar" id="tabbar">
+            <div class="tabbar-items">
+              <button class="tab-item active" type="button" data-tab="home">Home</button>
+              <button class="tab-item" type="button" data-tab="capture">Action</button>
+              <button class="tab-item" type="button" data-tab="library">Library</button>
+            </div>
+          </nav>
+
+          <div class="home-indicator" id="home-indicator"></div>
+        </div>
+      </main>
+
+      <aside class="panel prd-panel">
+        <div class="prd-header">
+          <p class="eyebrow">Logic Notes</p>
+          <h2>PRD</h2>
+          <p>切换页面后，右侧应自动切换到当前页面说明。功能名称和界面标签保留英文，逻辑说明写中文。</p>
+        </div>
+
+        <div class="prd-toolbar">
+          <div class="save-note" id="save-note">可直接编辑当前页面说明，点击 Save 生效。</div>
+          <button class="save-button" type="button" id="prd-save-button">Save</button>
+        </div>
+
+        <div class="prd-content" id="prd-content"></div>
+      </aside>
+    </div>
+
+    <script>
+      const screenMeta = [
+        { id: "home", label: "Home", summary: "Primary entry and overview" },
+        { id: "plan", label: "Plan", summary: "Upgrade or pricing screen" },
+        { id: "capture", label: "Capture", summary: "Input or scanner state" },
+        { id: "loading", label: "Loading", summary: "Processing transition" },
+        { id: "result", label: "Result", summary: "Main output state" },
+        { id: "library", label: "Library", summary: "Saved or dashboard state" },
+        { id: "detail", label: "Detail", summary: "Nested drill-down page" }
+      ];
+
+      const defaultPrdDocs = {
+        home: {
+          ui: "<p><code>Home</code> 要先交代核心价值，再给主 CTA。主视觉、主按钮、次级内容要有清晰层级。</p>",
+          page: "<p>这是默认入口页。目标是让用户快速理解产品能力，并立刻进入最关键的主流程。</p>"
+        },
+        plan: {
+          ui: "<p><code>Plan</code> 页面要强调主推荐方案，但信息量不能压过决策本身。</p>",
+          page: "<p>这是升级或计划页。职责是承接免费用户转化，或者解释高级能力的价值。</p>"
+        },
+        capture: {
+          ui: "<p><code>Capture</code> 需要尽量接近原生输入体验，按钮少而明确，边缘控制为辅。</p>",
+          page: "<p>这是用户提交输入的入口态。重点是快速开始，而不是解释过多规则。</p>"
+        },
+        loading: {
+          ui: "<p><code>Loading</code> 需要有处理中氛围，但不能制造焦虑。百分比、阶段文案、节奏要可信。</p>",
+          page: "<p>这是中间态页面，用于连接用户动作和系统结果，让整个流程更像真实产品。</p>"
+        },
+        result: {
+          ui: "<p><code>Result</code> 需要把最关键结论放在最前面，后面再接趋势、解释或细节模块。</p>",
+          page: "<p>这是核心结果页。用户最关心的信息必须在首屏被看懂，次级信息再辅助判断。</p>"
+        },
+        library: {
+          ui: "<p><code>Library</code> 适合展示 filled / empty 两种状态，并让信息密度稳定可扫读。</p>",
+          page: "<p>这是资产、记录或已保存内容的集合页。它需要同时证明“有内容时高效”和“没内容时不空洞”。</p>"
+        },
+        detail: {
+          ui: "<p><code>Detail</code> 页面用于承接 drill-down，适合更长文案和更细的信息分组。</p>",
+          page: "<p>这是详情页。它负责解释对象为什么重要，而不是只重复列表页已经展示过的标题。</p>"
+        }
+      };
+
+      const storageKey = "prototype_previewer_prd_docs_v1";
+      const storedDocs = (() => {
+        try {
+          const raw = window.localStorage.getItem(storageKey);
+          return raw ? JSON.parse(raw) : {};
+        } catch (error) {
+          return {};
+        }
+      })();
+
+      const prdDocs = Object.fromEntries(
+        Object.entries(defaultPrdDocs).map(([key, value]) => [
+          key,
+          {
+            ui: storedDocs[key]?.ui || value.ui,
+            page: storedDocs[key]?.page || value.page
+          }
+        ])
+      );
+
+      const screens = [...document.querySelectorAll(".screen")];
+      const flowList = document.getElementById("flow-list");
+      const prdContent = document.getElementById("prd-content");
+      const saveButton = document.getElementById("prd-save-button");
+      const saveNote = document.getElementById("save-note");
+      const tabbar = document.getElementById("tabbar");
+      const homeIndicator = document.getElementById("home-indicator");
+      const libraryList = document.getElementById("library-list");
+      const libraryEmpty = document.getElementById("library-empty");
+      const loadingPercent = document.getElementById("loading-percent");
+      const loadingMessage = document.getElementById("loading-message");
+      const loadingBar = document.getElementById("loading-bar");
+
+      const hiddenChromeScreens = new Set(["plan", "capture", "loading", "result"]);
+      let currentScreen = "home";
+      let libraryMode = "filled";
+      let loadingTimeouts = [];
+
+      function stopLoadingSequence() {
+        loadingTimeouts.forEach((id) => window.clearTimeout(id));
+        loadingTimeouts = [];
+      }
+
+      function startLoadingSequence() {
+        stopLoadingSequence();
+        if (loadingPercent) loadingPercent.textContent = "60%";
+        if (loadingMessage) loadingMessage.textContent = "Turn this into the best believable processing line for the product.";
+        if (loadingBar) loadingBar.style.width = "60%";
+
+        loadingTimeouts.push(
+          window.setTimeout(() => {
+            if (currentScreen !== "loading") return;
+            if (loadingPercent) loadingPercent.textContent = "100%";
+            if (loadingMessage) loadingMessage.textContent = "Finalizing the response screen...";
+            if (loadingBar) loadingBar.style.width = "100%";
+          }, 1200)
+        );
+
+        loadingTimeouts.push(
+          window.setTimeout(() => {
+            if (currentScreen === "loading") goTo("result");
+          }, 2200)
+        );
+      }
+
+      function renderFlowList() {
+        flowList.innerHTML = screenMeta
+          .map(
+            (screen) => `
+              <button class="flow-button${screen.id === currentScreen ? " active" : ""}" type="button" data-nav-target="${screen.id}">
+                <strong>${screen.label}</strong>
+                <span>${screen.summary}</span>
+              </button>
+            `
+          )
+          .join("");
+      }
+
+      function renderLibrary() {
+        libraryList.classList.toggle("active", libraryMode === "filled");
+        libraryEmpty.classList.toggle("active", libraryMode === "empty");
+        document.querySelectorAll("[data-library-mode]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.libraryMode === libraryMode);
+        });
+      }
+
+      function renderPrd() {
+        const doc = prdDocs[currentScreen];
+        const label = screenMeta.find((screen) => screen.id === currentScreen)?.label || currentScreen;
+        prdContent.innerHTML = `
+          <span class="mini-label">Page</span>
+          <h3>${label}</h3>
+          <div class="prd-section" data-prd-section="ui">
+            <button class="prd-section-head" type="button">
+              <strong>UI</strong>
+              <span>Collapse</span>
+            </button>
+            <div class="prd-section-body" data-prd-body="ui" contenteditable="true">${doc.ui}</div>
+          </div>
+          <div class="prd-section" data-prd-section="page">
+            <button class="prd-section-head" type="button">
+              <strong>Page</strong>
+              <span>Collapse</span>
+            </button>
+            <div class="prd-section-body" data-prd-body="page" contenteditable="true">${doc.page}</div>
+          </div>
+        `;
+
+        prdContent.querySelectorAll(".prd-section-head").forEach((button) => {
+          button.addEventListener("click", () => {
+            const section = button.closest(".prd-section");
+            if (!section) return;
+            section.classList.toggle("collapsed");
+          });
+        });
+      }
+
+      function renderScreens() {
+        screens.forEach((screen) => {
+          screen.classList.toggle("active", screen.dataset.screen === currentScreen);
+        });
+
+        if (tabbar) tabbar.style.display = hiddenChromeScreens.has(currentScreen) ? "none" : "";
+        if (homeIndicator) homeIndicator.style.display = hiddenChromeScreens.has(currentScreen) ? "none" : "";
+
+        const activeTab = currentScreen === "library" ? "library" : hiddenChromeScreens.has(currentScreen) ? "capture" : "home";
+        document.querySelectorAll("[data-tab]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.tab === activeTab);
+        });
+      }
+
+      function goTo(screenId) {
+        stopLoadingSequence();
+        currentScreen = screenId;
+        renderFlowList();
+        renderScreens();
+        renderPrd();
+        renderLibrary();
+        saveNote.textContent = "可直接编辑当前页面说明，点击 Save 生效。";
+        if (screenId === "loading") startLoadingSequence();
+      }
+
+      document.addEventListener("click", (event) => {
+        const navTarget = event.target.closest("[data-nav-target]")?.dataset.navTarget;
+        if (navTarget) {
+          goTo(navTarget);
+          return;
+        }
+
+        const goTarget = event.target.closest("[data-go]")?.dataset.go;
+        if (goTarget) {
+          goTo(goTarget);
+          return;
+        }
+
+        const tabTarget = event.target.closest("[data-tab]")?.dataset.tab;
+        if (tabTarget) {
+          goTo(tabTarget);
+          return;
+        }
+
+        const modeTarget = event.target.closest("[data-library-mode]")?.dataset.libraryMode;
+        if (modeTarget) {
+          libraryMode = modeTarget;
+          renderLibrary();
+        }
+      });
+
+      saveButton.addEventListener("click", () => {
+        const uiBody = prdContent.querySelector('[data-prd-body="ui"]');
+        const pageBody = prdContent.querySelector('[data-prd-body="page"]');
+        prdDocs[currentScreen] = {
+          ui: uiBody ? uiBody.innerHTML : prdDocs[currentScreen].ui,
+          page: pageBody ? pageBody.innerHTML : prdDocs[currentScreen].page
+        };
+        window.localStorage.setItem(storageKey, JSON.stringify(prdDocs));
+        saveNote.textContent = "Saved to localStorage.";
+      });
+
+      renderFlowList();
+      renderScreens();
+      renderLibrary();
+      renderPrd();
+    </script>
+  </body>
+</html>

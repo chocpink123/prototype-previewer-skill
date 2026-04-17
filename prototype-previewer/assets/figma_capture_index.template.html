@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prototype Capture</title>
+    <style id="source-styles"></style>
+    <style>
+      :root {
+        --capture-bg:
+          radial-gradient(circle at top left, rgba(115, 226, 255, 0.2) 0%, transparent 30%),
+          radial-gradient(circle at top right, rgba(255, 200, 101, 0.18) 0%, transparent 28%),
+          linear-gradient(180deg, #eef5fb 0%, #e4edf7 100%);
+        --capture-surface: rgba(255, 255, 255, 0.84);
+        --capture-border: rgba(15, 23, 42, 0.08);
+        --capture-copy: #0f172a;
+        --capture-muted: #526174;
+        --capture-shadow: 0 28px 80px rgba(15, 23, 42, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--capture-bg);
+        color: var(--capture-copy);
+        font-family: "SF Pro Display", "SF Pro Text", "Segoe UI", Arial, sans-serif;
+      }
+
+      body {
+        padding: 40px 16px 96px;
+      }
+
+      .capture-canvas {
+        width: min(520px, 100%);
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+
+      .capture-section {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding: 24px;
+        border-radius: 32px;
+        background: var(--capture-surface);
+        border: 1px solid var(--capture-border);
+        box-shadow: var(--capture-shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .capture-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .capture-head h2 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: -0.05em;
+      }
+
+      .capture-meta {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--capture-muted);
+      }
+
+      .capture-phone {
+        display: flex;
+        justify-content: center;
+      }
+
+      .capture-static,
+      .capture-static * {
+        animation: none !important;
+        transition: none !important;
+        caret-color: transparent !important;
+      }
+    </style>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  </head>
+  <body>
+    <main class="capture-canvas" id="capture-canvas" aria-live="polite"></main>
+
+    <script>
+      function setActiveScreen(root, screenName, hideChrome) {
+        root.querySelectorAll("[data-screen]").forEach((screen) => {
+          screen.classList.toggle("active", screen.dataset.screen === screenName);
+          screen.style.display = screen.dataset.screen === screenName ? "block" : "none";
+        });
+
+        const tabbar = root.querySelector("#tabbar, .tabbar");
+        const homeIndicator = root.querySelector("#home-indicator, .home-indicator");
+        if (tabbar) tabbar.style.display = hideChrome ? "none" : "";
+        if (homeIndicator) homeIndicator.style.display = hideChrome ? "none" : "";
+      }
+
+      function createViewportClone(sourceDoc, sourceScreen) {
+        const device = sourceDoc.querySelector(".preview-device");
+        if (!device) throw new Error("Preview device not found in source HTML.");
+
+        const clone = device.cloneNode(true);
+        clone.classList.add("capture-static");
+        setActiveScreen(clone, sourceScreen.dataset.screen, sourceScreen.dataset.hideChrome === "true");
+        return clone;
+      }
+
+      function buildSection(sourceDoc, sourceScreen, index) {
+        const label = sourceScreen.dataset.screenLabel || sourceScreen.dataset.screen;
+        const section = document.createElement("section");
+        section.className = "capture-section";
+
+        const head = document.createElement("div");
+        head.className = "capture-head";
+        head.innerHTML = `
+          <h2>${label}</h2>
+          <span class="capture-meta">Section ${String(index + 1).padStart(2, "0")}</span>
+        `;
+
+        const phoneWrap = document.createElement("div");
+        phoneWrap.className = "capture-phone";
+        phoneWrap.appendChild(createViewportClone(sourceDoc, sourceScreen));
+
+        section.appendChild(head);
+        section.appendChild(phoneWrap);
+        return section;
+      }
+
+      async function loadSourceDoc() {
+        const response = await fetch("/index.html", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Failed to load source HTML: ${response.status}`);
+        }
+
+        const html = await response.text();
+        const sourceDoc = new DOMParser().parseFromString(html, "text/html");
+        const sourceStyle = sourceDoc.querySelector("style");
+        if (sourceStyle) {
+          document.getElementById("source-styles").textContent = sourceStyle.textContent;
+        }
+        return sourceDoc;
+      }
+
+      async function initCapturePage() {
+        const captureCanvas = document.getElementById("capture-canvas");
+        captureCanvas.innerHTML = "";
+
+        const sourceDoc = await loadSourceDoc();
+        const sourceScreens = [...sourceDoc.querySelectorAll("[data-screen]")];
+        if (sourceScreens.length === 0) {
+          throw new Error("No source screens found in index.html.");
+        }
+
+        sourceScreens.forEach((sourceScreen, index) => {
+          captureCanvas.appendChild(buildSection(sourceDoc, sourceScreen, index));
+        });
+
+        document.body.dataset.captureReady = "true";
+      }
+
+      function bootCapturePage() {
+        initCapturePage().catch((error) => {
+          document.getElementById("capture-canvas").innerHTML = `<pre>${String(error)}</pre>`;
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bootCapturePage, { once: true });
+      } else {
+        bootCapturePage();
+      }
+    </script>
+  </body>
+</html>

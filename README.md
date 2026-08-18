@@ -1,3 +1,5 @@
+
+
 # Prototype Previewer
 
 A reusable prototype reviewer skill pack for Codex, Cursor, and Claude Code.
@@ -119,7 +121,7 @@ Example:
 
 ## Validation
 
-Run the checker inside a project that already contains `index.html` and `figma_capture_index.html`:
+From the repository root, run the checker against a project that already contains `index.html` and `figma_capture_index.html`:
 
 ```bash
 python3 prototype-previewer/scripts/check_previewer.py /path/to/project
